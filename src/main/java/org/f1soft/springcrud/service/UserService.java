@@ -5,9 +5,6 @@ import org.f1soft.springcrud.entity.Expense;
 import org.f1soft.springcrud.entity.User;
 import org.f1soft.springcrud.repository.ExpenseRepository;
 import org.f1soft.springcrud.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +26,7 @@ public class UserService {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
+        user.setRole("USER");
         return userRepository.save(user);
     }
 
@@ -50,6 +48,15 @@ public class UserService {
 //        }
 //
 //    }
+
+    public User loginUser(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if(passwordEncoder.matches(password, user.getPassword())) {
+            return user;
+        }else{
+            return null;
+        }
+    }
 
     public User getUserByUsername(String username){
         return userRepository.findByUsername(username);

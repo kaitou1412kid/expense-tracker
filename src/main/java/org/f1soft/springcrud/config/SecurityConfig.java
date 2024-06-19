@@ -1,9 +1,12 @@
 package org.f1soft.springcrud.config;
 
+import org.f1soft.springcrud.entity.MyUserDetailService;
 import org.f1soft.springcrud.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -25,6 +28,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private MyUserDetailService myUserDetailService;
+
+    SecurityConfig(MyUserDetailService myUserDetailService){
+        this.myUserDetailService = myUserDetailService;
+    }
 //    private final UserService userService;
 //
 //    public SecurityConfig(UserService userService) {
@@ -49,25 +57,26 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder
-    ){
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
-
-        return new ProviderManager(authenticationProvider);
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
+
+//    @Bean
+//    public UserDetailsService userDetailsService(){
+//        UserDetails userDetails = User.builder()
+//                .username("user")
+//                .password(passwordEncoder().encode("password"))
+//                .roles("ADMIN")
+//                .build();
+//        return new InMemoryUserDetailsManager(userDetails);
+//    }
     @Bean
     public UserDetailsService userDetailsService(){
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(userDetails);
+        return myUserDetailService;
     }
 
 }

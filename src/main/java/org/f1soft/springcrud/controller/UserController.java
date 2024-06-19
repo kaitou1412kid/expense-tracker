@@ -17,25 +17,20 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserRepository userRepository;
     private UserService userService;
-    private AuthenticationManager authenticationManager;
 
-    public UserController(UserService userService, AuthenticationManager authenticationManager, UserRepository userRepository) {
+    public UserController(UserService userService,  UserRepository userRepository) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
     public User register(@RequestBody UserDTO userDTO) {
-//        Authentication authenticationRequest =
-//                UsernamePasswordAuthenticationToken.unauthenticated(userDTO.getUsername(),userDTO.getPassword());
-//        Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
         return userService.save(userDTO.getUsername(),userDTO.getPassword());
     }
 
     @PostMapping("/login")
     public User login(@RequestBody UserDTO userDTO) {
-        return userService.getUserByUsername(userDTO.getUsername());
+        return userService.loginUser(userDTO.getUsername(), userDTO.getPassword());
 
     }
 
