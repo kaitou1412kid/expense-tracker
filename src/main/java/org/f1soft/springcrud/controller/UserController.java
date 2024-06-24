@@ -1,6 +1,7 @@
 package org.f1soft.springcrud.controller;
 
 import org.f1soft.springcrud.dto.ExpenseDTO;
+import org.f1soft.springcrud.dto.LoginDTO;
 import org.f1soft.springcrud.dto.UserDTO;
 import org.f1soft.springcrud.entity.Expense;
 import org.f1soft.springcrud.entity.User;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody UserDTO userDTO) {
+    public LoginDTO login(@RequestBody UserDTO userDTO) {
         return userService.loginUser(userDTO.getUsername(), userDTO.getPassword());
 
     }

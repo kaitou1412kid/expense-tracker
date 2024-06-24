@@ -2,6 +2,7 @@ package org.f1soft.springcrud.config;
 
 import org.f1soft.springcrud.entity.MyUserDetailService;
 import org.f1soft.springcrud.service.UserService;
+import org.f1soft.springcrud.webtoken.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -29,9 +31,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private MyUserDetailService myUserDetailService;
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    SecurityConfig(MyUserDetailService myUserDetailService){
+    SecurityConfig(MyUserDetailService myUserDetailService, JwtAuthenticationFilter jwtAuthenticationFilter){
         this.myUserDetailService = myUserDetailService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 //    private final UserService userService;
 //
@@ -51,8 +55,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize)-> authorize
                         .requestMatchers("/api/v1/user/**").permitAll()
                         .requestMatchers("/api/v1/expense/**").authenticated()
-                ).httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults());
+                ).httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -79,4 +84,8 @@ public class SecurityConfig {
         return myUserDetailService;
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(){
+        return new ProviderManager(authenticationProvider());
+    }
 }
